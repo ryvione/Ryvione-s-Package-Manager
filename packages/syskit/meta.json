@@ -1,0 +1,9 @@
+{
+  "name": "syskit",
+  "version": "1.0.0",
+  "description": "System utilities: htop, neofetch, rsync, tmux, and sysadmin essentials",
+  "author": "Ryvione",
+  "license": "MIT",
+  "tags": ["system", "utils", "sysadmin", "monitoring", "tmux"],
+  "dependencies": []
+}

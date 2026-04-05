@@ -1,0 +1,9 @@
+{
+  "name": "gamerkit",
+  "version": "1.0.0",
+  "description": "Gaming utilities: Steam, Discord, Lutris, MangoHud, and game optimizations",
+  "author": "Ryvione",
+  "license": "MIT",
+  "tags": ["gaming", "steam", "discord", "lutris", "performance"],
+  "dependencies": []
+}

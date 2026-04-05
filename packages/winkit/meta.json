@@ -1,0 +1,9 @@
+{
+  "name": "winkit",
+  "version": "1.0.0",
+  "description": "Windows essentials: chocolatey, winget tweaks, PowerToys, and system optimizations",
+  "author": "Ryvione",
+  "license": "MIT",
+  "tags": ["windows", "winget", "chocolatey", "powertoys", "tweaks"],
+  "dependencies": []
+}

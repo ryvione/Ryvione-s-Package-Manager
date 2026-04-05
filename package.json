@@ -1,0 +1,17 @@
+{
+  "name": "rpkg",
+  "version": "1.0.0",
+  "description": "Ryvione's Package Manager — install kits from pkg.ryvione.dev",
+  "type": "module",
+  "bin": {
+    "ryv": "./bin/ryv.js"
+  },
+  "scripts": {
+    "start": "node bin/ryv.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Ryvione",
+  "license": "SEE LICENSE IN LICENSE"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "dotkit",
+  "version": "1.0.0",
+  "description": "Dotfile manager: sets up shell configs, aliases, themes, and editor settings",
+  "author": "Ryvione",
+  "license": "MIT",
+  "tags": ["dotfiles", "shell", "zsh", "config", "theme"],
+  "dependencies": []
+}

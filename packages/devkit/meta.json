@@ -1,0 +1,9 @@
+{
+  "name": "devkit",
+  "version": "1.0.0",
+  "description": "Essential developer tools: git, curl, vim, build tools, and more",
+  "author": "Ryvione",
+  "license": "MIT",
+  "tags": ["dev", "tools", "git", "build", "essential"],
+  "dependencies": []
+}
