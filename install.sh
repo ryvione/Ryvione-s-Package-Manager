@@ -5,6 +5,7 @@ set -e
 
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 RED='\033[0;31m'
 RESET='\033[0m'
 BOLD='\033[1m'
@@ -15,45 +16,74 @@ REPO="https://github.com/ryvione/Ryvione-s-Package-Manager"
 
 echo -e "\n${BOLD}${CYAN}RPKG${RESET} — Ryvione's Package Manager\n"
 
-if ! command -v node &>/dev/null; then
-  echo -e "${RED}✖ Node.js is required but not installed.${RESET}"
-  echo -e "  Install it from https://nodejs.org (v18+) and re-run this script."
+check() {
+  command -v "$1" &>/dev/null
+}
+
+skip() {
+  echo -e "  ${YELLOW}↷${RESET} $1 already installed, skipping"
+}
+
+ok() {
+  echo -e "  ${GREEN}✔${RESET} $1"
+}
+
+fail() {
+  echo -e "  ${RED}✖${RESET} $1"
+}
+
+step() {
+  echo -e "  ${CYAN}→${RESET} $1"
+}
+
+if ! check node; then
+  fail "Node.js is required but not installed."
+  echo -e "     Install it from https://nodejs.org (v18+) and re-run this script."
   exit 1
 fi
 
 NODE_MAJOR=$(node -e "process.stdout.write(process.versions.node.split('.')[0])")
 if [ "$NODE_MAJOR" -lt 18 ]; then
-  echo -e "${RED}✖ Node.js v18+ is required. Found: v$(node --version)${RESET}"
+  fail "Node.js v18+ is required. Found: $(node --version)"
   exit 1
 fi
 
-echo -e "  ${GREEN}✔${RESET} Node.js $(node --version) detected"
+ok "Node.js $(node --version) detected"
 
-mkdir -p "$INSTALL_DIR" "$BIN_DIR"
+mkdir -p "$BIN_DIR"
 
-if command -v git &>/dev/null; then
-  echo -e "  ${CYAN}→${RESET} Cloning RPKG from GitHub..."
-  git clone --depth=1 "$REPO" "$INSTALL_DIR" 2>/dev/null || {
-    echo -e "  ${CYAN}→${RESET} Directory exists, pulling latest..."
-    git -C "$INSTALL_DIR" pull --ff-only
-  }
-elif command -v curl &>/dev/null; then
-  echo -e "  ${CYAN}→${RESET} Downloading RPKG from GitHub..."
-  curl -fsSL "$REPO/archive/refs/heads/master.tar.gz" | tar -xz -C "$INSTALL_DIR" --strip-components=1
-elif command -v wget &>/dev/null; then
-  echo -e "  ${CYAN}→${RESET} Downloading RPKG from GitHub..."
-  wget -qO- "$REPO/archive/refs/heads/master.tar.gz" | tar -xz -C "$INSTALL_DIR" --strip-components=1
+if [ -d "$INSTALL_DIR/.git" ]; then
+  skip "RPKG source (pulling latest instead)"
+  git -C "$INSTALL_DIR" pull --ff-only --quiet
+elif [ -f "$INSTALL_DIR/package.json" ]; then
+  skip "RPKG source (already present)"
 else
-  echo -e "${RED}✖ Neither git, curl, nor wget found.${RESET}"
-  exit 1
+  if check git; then
+    step "Cloning RPKG from GitHub..."
+    git clone --depth=1 "$REPO" "$INSTALL_DIR" --quiet
+  elif check curl; then
+    step "Downloading RPKG from GitHub..."
+    curl -fsSL "$REPO/archive/refs/heads/master.tar.gz" | tar -xz -C "$INSTALL_DIR" --strip-components=1
+  elif check wget; then
+    step "Downloading RPKG from GitHub..."
+    wget -qO- "$REPO/archive/refs/heads/master.tar.gz" | tar -xz -C "$INSTALL_DIR" --strip-components=1
+  else
+    fail "Neither git, curl, nor wget found."
+    exit 1
+  fi
 fi
 
-echo -e "  ${CYAN}→${RESET} Linking ryv command..."
-cat > "$BIN_DIR/ryv" << 'EOF'
+if [ -f "$BIN_DIR/ryv" ]; then
+  skip "ryv binary"
+else
+  step "Linking ryv command..."
+  cat > "$BIN_DIR/ryv" << 'EOF'
 #!/usr/bin/env bash
 exec node "$HOME/.local/share/rpkg/bin/ryv.js" "$@"
 EOF
-chmod +x "$BIN_DIR/ryv"
+  chmod +x "$BIN_DIR/ryv"
+  ok "ryv linked to $BIN_DIR/ryv"
+fi
 
 CURRENT_SHELL="$(basename "$SHELL")"
 case "$CURRENT_SHELL" in
@@ -63,11 +93,14 @@ case "$CURRENT_SHELL" in
   *)    SHELL_RC="$HOME/.profile" ;;
 esac
 
-if ! echo "$PATH" | grep -q "$BIN_DIR"; then
+if echo "$PATH" | grep -q "$BIN_DIR"; then
+  skip "PATH entry"
+else
   echo "" >> "$SHELL_RC"
   echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$SHELL_RC"
+  ok "Added $BIN_DIR to PATH in $SHELL_RC"
 fi
 
-echo -e "\n  ${GREEN}${BOLD}✔ RPKG installed successfully!${RESET}"
+echo -e "\n  ${GREEN}${BOLD}✔ RPKG ready!${RESET}"
 echo -e "  Run ${CYAN}source $SHELL_RC${RESET} or open a new terminal, then:"
 echo -e "  ${CYAN}ryv help${RESET}\n"

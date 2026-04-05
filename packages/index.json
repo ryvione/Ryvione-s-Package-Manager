@@ -3,5 +3,6 @@
   { "name": "gamerkit", "version": "1.0.0", "description": "Gaming utilities" },
   { "name": "dotkit", "version": "1.0.0", "description": "Dotfile manager" },
   { "name": "syskit", "version": "1.0.0", "description": "System utilities" },
-  { "name": "winkit", "version": "1.0.0", "description": "Windows essentials" }
+  { "name": "winkit", "version": "1.0.0", "description": "Windows essentials" },
+  { "name": "ryv-kernel", "version": "1.0.0", "description": "ryvionOS kernel boot simulator + interactive terminal" }
 ]

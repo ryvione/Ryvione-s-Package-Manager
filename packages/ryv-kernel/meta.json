@@ -1,0 +1,10 @@
+{
+  "name": "ryv-kernel",
+  "version": "1.0.0",
+  "releaseTag": "RK-1.0.0",
+  "description": "ryvionOS kernel boot simulator + interactive terminal in your CLI",
+  "author": "Ryvione",
+  "license": "MIT",
+  "tags": ["terminal", "fun", "ryvionos", "rickroll", "interactive"],
+  "dependencies": []
+}
