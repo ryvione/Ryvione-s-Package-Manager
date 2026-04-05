@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Ryvione. All rights reserved.
 
 const REGISTRY_BASE = "https://pkg.ryvione.dev";
+const GITHUB_RAW = "https://raw.githubusercontent.com/ryvione/Ryvione-s-Package-Manager/master";
 
 async function fetchJSON(url) {
   let res;
@@ -35,7 +36,12 @@ export async function fetchKitList() {
 
 export function getInstallScriptUrl(kitName, platform) {
   const ext = platform === "win32" ? "ps1" : "sh";
-  return `${REGISTRY_BASE}/kits/${kitName}/install.${ext}`;
+  return `${GITHUB_RAW}/packages/${kitName}/install.${ext}`;
+}
+
+export function getRemoveScriptUrl(kitName) {
+  const ext = process.platform === "win32" ? "ps1" : "sh";
+  return `${GITHUB_RAW}/packages/${kitName}/remove.${ext}`;
 }
 
 export function getRegistryBase() {
