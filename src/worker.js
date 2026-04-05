@@ -2,25 +2,36 @@
 
 const GITHUB_RAW = "https://raw.githubusercontent.com/ryvione/Ryvione-s-Package-Manager/master";
 
-const CORS = {
+const CORS_JSON = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Content-Type": "application/json",
 };
 
+const CORS_PLAIN = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Content-Type": "text/plain",
+};
+
 function json(data, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: CORS });
+  return new Response(JSON.stringify(data), { status, headers: CORS_JSON });
 }
 
 function notFound(msg = "Not found") {
   return json({ error: msg }, 404);
 }
 
-async function proxyGithub(path) {
-  const url = `${GITHUB_RAW}/${path}`;
-  const res = await fetch(url);
+async function proxyGithub(path, contentType = "text/plain") {
+  const res = await fetch(`${GITHUB_RAW}/${path}`);
   if (!res.ok) return null;
-  return res.text();
+  const text = await res.text();
+  return new Response(text, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Content-Type": contentType,
+    },
+  });
 }
 
 export default {
@@ -29,25 +40,36 @@ export default {
     const path = url.pathname;
 
     if (req.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: CORS });
-    }
-
-    if (path === "/kits/index.json") {
-      const raw = await proxyGithub("packages/index.json");
-      if (!raw) return notFound("Kit index not found");
-      return new Response(raw, { headers: CORS });
-    }
-
-    const kitMeta = path.match(/^\/kits\/([a-z0-9_-]+)\/meta\.json$/);
-    if (kitMeta) {
-      const kit = kitMeta[1];
-      const raw = await proxyGithub(`packages/${kit}/meta.json`);
-      if (!raw) return notFound(`Kit "${kit}" not found`);
-      return new Response(raw, { headers: CORS });
+      return new Response(null, { status: 204, headers: CORS_JSON });
     }
 
     if (path === "/" || path === "") {
       return json({ name: "RPKG Registry", url: "https://pkg.ryvione.dev", status: "ok" });
+    }
+
+    if (path === "/install.sh") {
+      const res = await proxyGithub("install.sh");
+      if (!res) return notFound("install.sh not found");
+      return res;
+    }
+
+    if (path === "/install.ps1") {
+      const res = await proxyGithub("install.ps1");
+      if (!res) return notFound("install.ps1 not found");
+      return res;
+    }
+
+    if (path === "/kits/index.json") {
+      const res = await proxyGithub("packages/index.json", "application/json");
+      if (!res) return notFound("Kit index not found");
+      return res;
+    }
+
+    const kitMeta = path.match(/^\/kits\/([a-z0-9_-]+)\/meta\.json$/);
+    if (kitMeta) {
+      const res = await proxyGithub(`packages/${kitMeta[1]}/meta.json`, "application/json");
+      if (!res) return notFound(`Kit "${kitMeta[1]}" not found`);
+      return res;
     }
 
     return notFound();
